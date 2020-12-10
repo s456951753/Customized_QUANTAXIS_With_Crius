@@ -1,0 +1,79 @@
+
+#step one: create indicies in sql
+
+ALTER TABLE fina_indicator_1990_1994 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_1990_1994_id on fina_indicator_1990_1994(id);
+create index ind_fina_indicator_1990_1994_tscode on fina_indicator_1990_1994(ts_code);
+create index ind_fina_indicator_1990_1994_ann_date on fina_indicator_1990_1994(ann_date);
+
+ALTER TABLE fina_indicator_1995_1999 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_1995_1999_id on fina_indicator_1995_1999(id);
+create index ind_fina_indicator_1995_1999_tscode on fina_indicator_1995_1999(ts_code);
+create index ind_fina_indicator_1995_1999_ann_date on fina_indicator_1995_1999(ann_date);
+
+ALTER TABLE fina_indicator_2000_2004 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_2000_2004_id on fina_indicator_2000_2004(id);
+create index ind_fina_indicator_2000_2004_tscode on fina_indicator_2000_2004(ts_code);
+create index ind_fina_indicator_2000_2004_ann_date on fina_indicator_2000_2004(ann_date);
+
+ALTER TABLE fina_indicator_2005_2009 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_2005_2009_id on fina_indicator_2005_2009(id);
+create index ind_fina_indicator_2005_2009_tscode on fina_indicator_2005_2009(ts_code);
+create index ind_fina_indicator_2005_2009_ann_date on fina_indicator_2005_2009(ann_date);
+
+ALTER TABLE fina_indicator_2010_2014 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_2010_2014_id on fina_indicator_2010_2014(id);
+create index ind_fina_indicator_2010_2014_tscode on fina_indicator_2010_2014(ts_code);
+create index ind_fina_indicator_2010_2014_ann_date on fina_indicator_2010_2014(ann_date);
+
+ALTER TABLE fina_indicator_2015_2019 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_2015_2019_id on fina_indicator_2015_2019(id);
+create index ind_fina_indicator_2015_2019_tscode on fina_indicator_2015_2019(ts_code);
+create index ind_fina_indicator_2015_2019_ann_date on fina_indicator_2015_2019(ann_date);
+
+ALTER TABLE fina_indicator_2020_2024 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_fina_indicator_2020_2024_id on fina_indicator_2020_2024(id);
+create index ind_fina_indicator_2020_2024_tscode on fina_indicator_2020_2024(ts_code);
+create index ind_fina_indicator_2020_2024_ann_date on fina_indicator_2020_2024(ann_date);
+
+#step two: run remove duplicate script in python
+
+#step three: create unique index in sql
+
+create unique index unique_fina_indicator_1990_1994_tscode_date on fina_indicator_1990_1994 (ts_code,ann_date);
+create unique index unique_fina_indicator_1995_1999_tscode_date on fina_indicator_1995_1999 (ts_code,ann_date);
+create unique index unique_fina_indicator_2000_2004_tscode_date on fina_indicator_2000_2004 (ts_code,ann_date);
+create unique index unique_fina_indicator_2005_2009_tscode_date on fina_indicator_2005_2009 (ts_code,ann_date);
+create unique index unique_fina_indicator_2010_2014_tscode_date on fina_indicator_2010_2014 (ts_code,ann_date);
+create unique index unique_fina_indicator_2015_2019_tscode_date on fina_indicator_2015_2019 (ts_code,ann_date);
+create unique index unique_fina_indicator_2020_2024_tscode_date on fina_indicator_2020_2024 (ts_code,ann_date);
+
+#step four: change dates to integer
+
+alter table fina_indicator_1990_1994 add column ann_date_int int;
+update fina_indicator_1990_1994 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_1990_1994_ann_date_int on fina_indicator_1990_1994(ann_date_int);
+
+alter table fina_indicator_1995_1999 add column ann_date_int int;
+update fina_indicator_1995_1999 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_1995_1999_ann_date_int on fina_indicator_1995_1999(ann_date_int);
+
+alter table fina_indicator_2000_2004 add column ann_date_int int;
+update fina_indicator_2000_2004 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_2000_2004_ann_date_int on fina_indicator_2000_2004(ann_date_int);
+
+alter table fina_indicator_2005_2009 add column ann_date_int int;
+update fina_indicator_2005_2009 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_2005_2009_ann_date_int on fina_indicator_2005_2009(ann_date_int);
+
+alter table fina_indicator_2010_2014 add column ann_date_int int;
+update fina_indicator_2010_2014 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_2010_2014_ann_date_int on fina_indicator_2010_2014(ann_date_int);
+
+alter table fina_indicator_2015_2019 add column ann_date_int int;
+update fina_indicator_2015_2019 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_2015_2019_ann_date_int on fina_indicator_2015_2019(ann_date_int);
+
+alter table fina_indicator_2020_2024 add column ann_date_int int;
+update fina_indicator_2020_2024 set ann_date_int = cast(ann_date as unsigned);
+create index ind_fina_indicator_2020_2024_ann_date_int on fina_indicator_2020_2024(ann_date_int);

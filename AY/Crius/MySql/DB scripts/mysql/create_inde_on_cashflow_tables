@@ -1,0 +1,79 @@
+
+#step one: create indicies in sql
+
+ALTER TABLE cashflow_1990_1994 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_1990_1994_id on cashflow_1990_1994(id);
+create index ind_cashflow_1990_1994_tscode on cashflow_1990_1994(ts_code);
+create index ind_cashflow_1990_1994_f_ann_date on cashflow_1990_1994(f_ann_date);
+
+ALTER TABLE cashflow_1995_1999 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_1995_1999_id on cashflow_1995_1999(id);
+create index ind_cashflow_1995_1999_tscode on cashflow_1995_1999(ts_code);
+create index ind_cashflow_1995_1999_f_ann_date on cashflow_1995_1999(f_ann_date);
+
+ALTER TABLE cashflow_2000_2004 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_2000_2004_id on cashflow_2000_2004(id);
+create index ind_cashflow_2000_2004_tscode on cashflow_2000_2004(ts_code);
+create index ind_cashflow_2000_2004_f_ann_date on cashflow_2000_2004(f_ann_date);
+
+ALTER TABLE cashflow_2005_2009 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_2005_2009_id on cashflow_2005_2009(id);
+create index ind_cashflow_2005_2009_tscode on cashflow_2005_2009(ts_code);
+create index ind_cashflow_2005_2009_f_ann_date on cashflow_2005_2009(f_ann_date);
+
+ALTER TABLE cashflow_2010_2014 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_2010_2014_id on cashflow_2010_2014(id);
+create index ind_cashflow_2010_2014_tscode on cashflow_2010_2014(ts_code);
+create index ind_cashflow_2010_2014_f_ann_date on cashflow_2010_2014(f_ann_date);
+
+ALTER TABLE cashflow_2015_2019 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_2015_2019_id on cashflow_2015_2019(id);
+create index ind_cashflow_2015_2019_tscode on cashflow_2015_2019(ts_code);
+create index ind_cashflow_2015_2019_f_ann_date on cashflow_2015_2019(f_ann_date);
+
+ALTER TABLE cashflow_2020_2024 ADD id INT NOT NULL AUTO_INCREMENT PRIMARY KEY;
+create index ind_cashflow_2020_2024_id on cashflow_2020_2024(id);
+create index ind_cashflow_2020_2024_tscode on cashflow_2020_2024(ts_code);
+create index ind_cashflow_2020_2024_f_ann_date on cashflow_2020_2024(f_ann_date);
+
+#step two: run remove duplicate script in python
+
+#step three: create unique index in sql
+
+create unique index unique_cashflow_1990_1994_tscode_date on cashflow_1990_1994 (ts_code,f_ann_date);
+create unique index unique_cashflow_1995_1999_tscode_date on cashflow_1995_1999 (ts_code,f_ann_date);
+create unique index unique_cashflow_2000_2004_tscode_date on cashflow_2000_2004 (ts_code,f_ann_date);
+create unique index unique_cashflow_2005_2009_tscode_date on cashflow_2005_2009 (ts_code,f_ann_date);
+create unique index unique_cashflow_2010_2014_tscode_date on cashflow_2010_2014 (ts_code,f_ann_date);
+create unique index unique_cashflow_2015_2019_tscode_date on cashflow_2015_2019 (ts_code,f_ann_date);
+create unique index unique_cashflow_2020_2024_tscode_date on cashflow_2020_2024 (ts_code,f_ann_date);
+
+#step four: change dates to integer
+
+alter table cashflow_1990_1994 add column f_ann_date_int int;
+update cashflow_1990_1994 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_1990_1994_f_ann_date_int on cashflow_1990_1994(f_ann_date_int);
+
+alter table cashflow_1995_1999 add column f_ann_date_int int;
+update cashflow_1995_1999 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_1995_1999_f_ann_date_int on cashflow_1995_1999(f_ann_date_int);
+
+alter table cashflow_2000_2004 add column f_ann_date_int int;
+update cashflow_2000_2004 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_2000_2004_f_ann_date_int on cashflow_2000_2004(f_ann_date_int);
+
+alter table cashflow_2005_2009 add column f_ann_date_int int;
+update cashflow_2005_2009 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_2005_2009_f_ann_date_int on cashflow_2005_2009(f_ann_date_int);
+
+alter table cashflow_2010_2014 add column f_ann_date_int int;
+update cashflow_2010_2014 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_2010_2014_f_ann_date_int on cashflow_2010_2014(f_ann_date_int);
+
+alter table cashflow_2015_2019 add column f_ann_date_int int;
+update cashflow_2015_2019 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_2015_2019_f_ann_date_int on cashflow_2015_2019(f_ann_date_int);
+
+alter table cashflow_2020_2024 add column f_ann_date_int int;
+update cashflow_2020_2024 set f_ann_date_int = cast(f_ann_date as unsigned);
+create index ind_cashflow_2020_2024_f_ann_date_int on cashflow_2020_2024(f_ann_date_int);
