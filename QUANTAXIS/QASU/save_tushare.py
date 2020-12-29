@@ -30,6 +30,10 @@ import pymongo
 
 import tushare as ts
 
+import AY.Crius.MySql.stock_basic as crius_basic
+import AY.Crius.Utils.tushare_service as tushare_service
+import AY.Crius.Utils.trading_calendar_utils as trading_calendar_utils
+
 from QUANTAXIS.QAFetch.QATushare import (
     QA_fetch_get_stock_day,
     QA_fetch_get_stock_info,
@@ -37,6 +41,9 @@ from QUANTAXIS.QAFetch.QATushare import (
     QA_fetch_get_stock_block,
     QA_fetch_get_trade_date,
     QA_fetch_get_lhb,
+    QA_fetch_get_stock_financial_indicators,
+    QA_fetch_get_stock_daily_basic,
+    QA_fetch_get_balance_sheet
 )
 from QUANTAXIS.QAUtil import (
     QA_util_date_stamp,
@@ -50,6 +57,9 @@ from QUANTAXIS.QAUtil import (
 from QUANTAXIS.QAUtil.QASetting import DATABASE
 
 import tushare as QATs
+
+def __get_tushare_pro_interface(token=None):
+    return tushare_service.tushare_interface(token=token)
 
 
 def date_conver_to_new_format(date_str):
@@ -127,6 +137,7 @@ def QA_SU_save_stock_terminated(client=DATABASE):
 
     # 🛠todo 已经失效从wind 资讯里获取
     # 这个函数已经失效
+    '''
     print("！！！ tushare 这个函数已经失效！！！")
     df = QATs.get_terminated()
     #df = QATs.get_suspended()
@@ -139,6 +150,17 @@ def QA_SU_save_stock_terminated(client=DATABASE):
     json_data = json.loads(df.reset_index().to_json(orient='records'))
     coll.insert(json_data)
     print(" 保存终止上市股票列表 到 stock_terminated collection， OK")
+    '''
+    pro = __get_tushare_pro_interface()
+    df = crius_basic.get_stock_basic(pro=pro)
+    df = df[df['list_status']=='D']
+    df = df[['ts_code','name','list_date','delist_date']]
+    df = df.rename(columns={'ts_code':'code','list_date' : 'oDate','delist_date':'tDate'})
+    coll = client.stock_terminated
+    client.drop_collection(coll)
+    json_data = json.loads(df.reset_index().to_json(orient='records'))
+    print(json_data)
+    coll.insert(json_data)
 
 
 def QA_SU_save_stock_info_tushare(client=DATABASE):
@@ -175,6 +197,7 @@ def QA_SU_save_stock_info_tushare(client=DATABASE):
     :param client:
     :return:
     '''
+
     df = QATs.get_stock_basics()
     print(" Get stock info from tushare,stock count is %d" % len(df))
     coll = client.stock_info_tushare
@@ -182,12 +205,16 @@ def QA_SU_save_stock_info_tushare(client=DATABASE):
     json_data = json.loads(df.reset_index().to_json(orient='records'))
     coll.insert(json_data)
     print(" Save data to stock_info_tushare collection， OK")
+    
+    
 
 
 def QA_SU_save_trade_date_all(client=DATABASE):
     data = QA_fetch_get_trade_date('', '')
     coll = client.trade_date
-    coll.insert_many(data)
+    if (data != None):
+        coll.drop()
+        coll.insert_many(data)
 
 
 def QA_SU_save_stock_info(client=DATABASE):
@@ -436,6 +463,86 @@ def QA_SU_save_stock_block(client=DATABASE, ui_log=None, ui_progress=None):
         QA_util_log_info('ERROR CODE \n ', ui_log)
         QA_util_log_info(e, ui_log)
 
+
+def QA_SU_save_finacial_inicator_data(client=DATABASE):
+    '''
+    save tushare's report data into mongodb
+    :param client:
+    :return:
+    '''
+    import AY.Crius.Utils.logging_util as log
+
+    __coll = client.finacial_indicator
+    __coll.create_index(
+        [("ts_code",
+          pymongo.ASCENDING),
+         ("ann_date",
+          pymongo.ASCENDING)]
+    )
+
+    logger = log.get_logger('QA_fetch_stock_financial_indicators')
+    data = None
+    codes = []
+    try:
+        codes = QA_fetch_get_stock_list()
+    except Exception as e:
+        logger.error(e)
+        logger.error('error fetching stock list')
+    for code in codes:
+        data = QA_fetch_get_stock_financial_indicators(code)
+        if (data is not None):
+            __coll.insert_many(QA_util_to_json_from_pandas(data))
+            data = None
+
+
+def QA_SU_save_daily_basic(client=DATABASE, date=None):
+    __coll = client.daily_basic_tushare
+    __coll.create_index(
+        [("ts_code",
+          pymongo.ASCENDING),
+         ("trade_date",
+          pymongo.ASCENDING)]
+    )
+    if (date == None):
+        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+    data = QA_fetch_get_stock_daily_basic(date)
+    if (data is not None):
+        __coll.insert_many(QA_util_to_json_from_pandas(data))
+
+
+def QA_SU_save_balance_sheet(client=DATABASE, start_ann_date=None):
+    import AY.Crius.Utils.logging_util as log
+    logger = log.get_logger('QA_fetch_stock_financial_indicators')
+
+    __coll = client.balance_sheet
+    __coll.create_index(
+        [("ts_code",
+          pymongo.ASCENDING),
+         ("ann_date",
+          pymongo.ASCENDING)]
+    )
+
+    if (not (start_ann_date is None)):
+        if (not (isinstance(start_ann_date, str))):
+            start_ann_date = str(start_ann_date)
+        dates = trading_calendar_utils.get_trading_days_between(start_date=start_ann_date,
+                                                                end_date=trading_calendar_utils.get_today_as_str())
+        for d in dates:
+            data = QA_fetch_get_balance_sheet(ann_date=d)
+            if (data is not None):
+                __coll.insert_many(QA_util_to_json_from_pandas(data))
+                data = None
+    else:
+        try:
+            codes = QA_fetch_get_stock_list()
+        except Exception as e:
+            logger.error(e)
+            logger.error('error fetching stock list')
+        for code in codes:
+            data = QA_fetch_get_balance_sheet(ts_code=code)
+            if (data is not None):
+                __coll.insert_many(QA_util_to_json_from_pandas(data))
+                data = None
 
 if __name__ == '__main__':
     from pymongo import MongoClient

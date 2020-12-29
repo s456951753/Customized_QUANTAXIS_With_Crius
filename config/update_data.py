@@ -28,13 +28,13 @@ import datetime
 from QUANTAXIS import (QA_SU_save_etf_day, QA_SU_save_index_day, QA_SU_save_stock_min,
                        QA_SU_save_stock_block, QA_SU_save_stock_day,QA_SU_save_etf_min,
                        QA_SU_save_stock_list, QA_SU_save_stock_xdxr,
-                       QA_util_log_info)
-
-print('SAVE/UPDATE {}'.format(datetime.datetime.now()))
-
-QA_SU_save_stock_day('tdx')
-QA_SU_save_stock_xdxr('tdx')
-QA_SU_save_etf_day('tdx')
-QA_SU_save_index_day('tdx')
-QA_SU_save_stock_list('tdx')
-QA_SU_save_stock_block('tdx')
+                       QA_util_log_info,QA_SU_save_stock_info_tushare)
+if __name__ == '__main__':
+    print('SAVE/UPDATE {}'.format(datetime.datetime.now()))
+    #QA_SU_save_stock_day('tdx')
+    #QA_SU_save_stock_xdxr('tdx')
+    #QA_SU_save_etf_day('tdx')
+    #QA_SU_save_index_day('tdx')
+   # QA_SU_save_stock_list('tdx')
+   # QA_SU_save_stock_block('tdx')
+    QA_SU_save_stock_info_tushare()
