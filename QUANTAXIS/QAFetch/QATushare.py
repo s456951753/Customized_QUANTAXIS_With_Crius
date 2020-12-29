@@ -205,20 +205,21 @@ def QA_fetch_get_stock_time_to_market():
 
 
 def QA_fetch_get_trade_date(end, exchange):
-    data = ts.trade_cal()
-    da = data[data.isOpen > 0]
-    data_json = QA_util_to_json_from_pandas(data)
+    pro = get_pro()
+    data = pro.trade_cal()
+    da = data[data.is_open > 0]
+    data_json = QA_util_to_json_from_pandas(da)
     message = []
     for i in range(0, len(data_json) - 1, 1):
-        date = data_json[i]['calendarDate']
+        date = data_json[i]['cal_date']
         num = i + 1
         exchangeName = 'SSE'
-        data_stamp = QA_util_date_stamp(date)
+        # data_stamp = QA_util_date_stamp(date)
         mes = {
             'date': date,
             'num': num,
-            'exchangeName': exchangeName,
-            'date_stamp': data_stamp
+            'exchangeName': exchangeName
+            # 'date_stamp': data_stamp
         }
         message.append(mes)
     return message
@@ -276,6 +277,36 @@ def QA_fetch_get_stock_daily_basic(trade_date):
     except Exception as e:
         logger.error(e)
         logger.error("error processing data for date " + trade_date)
+
+
+def QA_fetch_get_balance_sheet(ts_code=None, ann_date=None):
+    """
+
+    :param start_ann_date:
+    :param ts_code:
+    :param ann_date:
+    :return:
+    """
+    if (ts_code == None and ann_date == None):
+        raise ValueError('either ts_code or ann_date has to be provided')
+
+    import AY.Crius.Utils.logging_util as log
+    pro = get_pro()
+    logger = log.get_logger('QA_fetch_get_balance_sheet')
+    try:
+        if (not (ts_code is None) and ann_date is None):
+            to_insert = pro.balancesheet_vip(ts_code=ts_code)
+            return to_insert
+        elif (ts_code is None and not (ann_date is None)):
+            to_insert = pro.balancesheet_vip(ann_date=ann_date)
+            return to_insert
+        else:
+            to_insert = pro.balancesheet_vip(ts_code=ts_code, ann_date=ann_date)
+            return to_insert
+    except Exception as e:
+        logger.error(e)
+        logger.error("error processing data for code " + ts_code)
+
 
 # test
 
