@@ -8,6 +8,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+
 #Load Tushare
 from rqalpha.apis.api_base import history_bars, get_position
 from rqalpha.mod.rqalpha_mod_sys_accounts.api.api_stock import order_target_value, order_value
@@ -26,6 +27,4 @@ print(df)
 # df.to_excel(r'C:\Users\Austin\Desktop\Tushare\fina_mainbz_vip.xlsx', index = False)
 
 
-# data = pro.query('stock_basic', exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,list_date')
-# Export the df to excel
-# data.to_excel(r'C:\Users\Austin\Desktop\Tushare\stock_basic.xlsx', index = False)
+
