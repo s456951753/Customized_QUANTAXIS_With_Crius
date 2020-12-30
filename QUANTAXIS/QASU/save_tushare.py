@@ -540,7 +540,7 @@ def QA_SU_save_balance_sheet(client=DATABASE, start_ann_date=None):
             logger.error('error fetching stock list')
         for code in codes:
             data = QA_fetch_get_balance_sheet(ts_code=code)
-            if (data is not None):
+            if (data is not None and data.size > 0):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
                 data = None
 
