@@ -8,13 +8,17 @@ import AY.Crius.Utils.data_mining_utils as miner_util
 
 
 def mine():
-    daily_basic_df = miner_util.get_latest_daily_basic_table()
-    financial_indicator_df = miner_util.get_latest_finacial_indicator_table()
-    balance_sheet_df = miner_util.get_latest_balance_sheet_table()
+    daily_basic_df = pd.DataFrame(miner_util.get_latest_daily_basic_table()[
+                                      "ts_code", "close", "trade_date", "turnover_rate", "total_mv", "pb", "ps", "pe",])
+    financial_indicator_df = pd.DataFrame(miner_util.get_latest_finacial_indicator_table()[
+                                              "ts_code", "ann_date", "ocfps", "profit_dedt", "q_sales_yoy", "invturn_days"])
+    balance_sheet_df = pd.DataFrame(miner_util.get_latest_balance_sheet_table()[
+                                        "ts_code", "f_ann_date", "update_flag", "total_assets", "cash_reser_cb", "depos_in_oth_bfi"])
     stock_list_df = pd.DataFrame(miner_util.get_stock_list()["ts_code", "name"])
 
-    df = pd.DataFrame(daily_basic_df[["ts_code", "close", "trade_date", "turnover_rate", "total_mv"]])
-    df = df.merge(right=stock_list_df, on='ts_code')
+    df = daily_basic_df.merge(right=stock_list_df, on='ts_code').merge(right=financial_indicator_df,
+                                                                       on="ts_code").merge(right=balance_sheet_df,
+                                                                                           on="ts_code")
 
     return df
 

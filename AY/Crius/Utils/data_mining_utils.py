@@ -52,12 +52,17 @@ def get_latest_balance_sheet_table(mongoDB=DATABASE.balance_sheet):
     ]
     df = pd.DataFrame()
     for a in mongoDB.aggregate(pipeline):
-        b = mongoDB.find_one({'ts_code': a['_id'], 'f_ann_date': a['date'], 'update_flag': "1"})
-        df = df.append(b, ignore_index=True)
+        b = mongoDB.find({'ts_code': a['_id'], 'f_ann_date': a['date']})
+        for c in b:
+            df = df.append(c, ignore_index=True)
     return df
 
 
 def get_stock_list(mongoDB=DATABASE.stock_list):
     df = pd.DataFrame(list(mongoDB.find()))
-    df['ts_code'] = df['code'] + '.' + df['sse'].upper()
+    df = df.assign(ts_code=lambda x: x.code + '.' + x.sse)
+    df['ts_code'] = df['ts_code'].str.upper()
     return df
+
+
+print(get_latest_balance_sheet_table())
