@@ -63,6 +63,3 @@ def get_stock_list(mongoDB=DATABASE.stock_list):
     df = df.assign(ts_code=lambda x: x.code + '.' + x.sse)
     df['ts_code'] = df['ts_code'].str.upper()
     return df
-
-
-print(get_latest_balance_sheet_table())
