@@ -9,8 +9,24 @@ with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
 
 
 def send_mail(message, receipents=None):
-    receiver_email_1 = "austinyxh@hotmail.com"
-    receiver_email_2 = "ee07b238@gmail.com"
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    if receipents is None:
+        receipents = "austinyxh@hotmail.com,ee07b238@gmail.com"
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = "Link"
+    msg['From'] = "s456951753@gmail.com"
+    msg['To'] = receipents
+    text = config_service.getProperty(section_name=config_service.QUANTAXIS_RUNTIME_CONFIG_SECTION_NAME,
+                                      property_name=config_service.TEXT_PART_OF_EMAIL)
+
+    part1 = MIMEText("Crius Data Analysis Report", 'plain')
+    part2 = MIMEText(message, 'html')
+
+    msg.attach(part1)
+    msg.attach(part2)
+
     acct = config_service.getProperty(section_name=config_service.GMAIL_SECTION_NAME,
                                       property_name=config_service.GM_ACCOUNT_NAME)
     password = config_service.getProperty(section_name=config_service.GMAIL_SECTION_NAME,
@@ -26,5 +42,4 @@ def send_mail(message, receipents=None):
     context = ssl.create_default_context()
     server = smtplib.SMTP_SSL(host=server_name, port=server_port, context=context)
     server.login(acct, password)
-    server.sendmail(acct, receiver_email_1, message)
-    server.sendmail(acct, receiver_email_2, message)
+    server.sendmail(from_addr=acct, to_addrs=receipents, msg=msg)

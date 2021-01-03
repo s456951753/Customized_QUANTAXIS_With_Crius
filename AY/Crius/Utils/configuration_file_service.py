@@ -21,6 +21,7 @@ DATA_CONFIG_YEAR_GRANULARITY_NAME = "year"
 
 QUANTAXIS_RUNTIME_CONFIG_SECTION_NAME = "QUANTAXIS_RUNTIME_CONFIG"
 HIGHROA_LOWPE_LIST_SIZE_NAME = "year"
+TEXT_PART_OF_EMAIL = "Crius Data Analysis Report"
 
 config = ConfigParser()
 config.read("../crius.properties")
