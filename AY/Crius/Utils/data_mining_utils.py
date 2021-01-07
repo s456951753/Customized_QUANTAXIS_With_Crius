@@ -2,6 +2,9 @@ import AY.Crius.Utils.trading_calendar_utils as calendar_util
 import pandas as pd
 from QUANTAXIS.QAUtil import DATABASE
 
+CASH_FLOW_TYPE_NAME = 'cash_flow'
+BALANCE_SHEET_TYPE_NAME = 'balance_sheet'
+FINACIAL_INDICATOR_TYPE_NAME = 'finacial_indicator'
 
 def get_latest_daily_basic_table(mongoDB=DATABASE.daily_basic_tushare):
     trade_date = calendar_util.get_last_x_trading_day_from_mongodb(1)

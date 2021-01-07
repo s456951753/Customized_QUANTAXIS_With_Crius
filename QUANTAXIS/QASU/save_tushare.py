@@ -33,6 +33,7 @@ import tushare as ts
 import AY.Crius.MySql.stock_basic as crius_basic
 import AY.Crius.Utils.tushare_service as tushare_service
 import AY.Crius.Utils.trading_calendar_utils as trading_calendar_utils
+import AY.Crius.Utils.data_mining_utils as data_mining_utils
 
 from QUANTAXIS.QAFetch.QATushare import (
     QA_fetch_get_stock_day,
@@ -43,7 +44,8 @@ from QUANTAXIS.QAFetch.QATushare import (
     QA_fetch_get_lhb,
     QA_fetch_get_stock_financial_indicators,
     QA_fetch_get_stock_daily_basic,
-    QA_fetch_get_balance_sheet
+    QA_fetch_get_balance_sheet,
+    QA_fetch_get_stock_cashflow
 )
 from QUANTAXIS.QAUtil import (
     QA_util_date_stamp,
@@ -57,6 +59,7 @@ from QUANTAXIS.QAUtil import (
 from QUANTAXIS.QAUtil.QASetting import DATABASE
 
 import tushare as QATs
+
 
 def __get_tushare_pro_interface(token=None):
     return tushare_service.tushare_interface(token=token)
@@ -74,7 +77,7 @@ def date_conver_to_new_format(date_str):
 # TODO: 和sav_tdx.py中的now_time一起提取成公共函数
 def now_time():
     real_date = str(QA_util_get_real_date(str(datetime.date.today() -
-                                          datetime.timedelta(days=1)),
+                                              datetime.timedelta(days=1)),
                                           trade_date_sse, -1))
     str_now = real_date + ' 17:00:00' if datetime.datetime.now().hour < 15 \
         else str(QA_util_get_real_date(str(datetime.date.today()),
@@ -153,9 +156,9 @@ def QA_SU_save_stock_terminated(client=DATABASE):
     '''
     pro = __get_tushare_pro_interface()
     df = crius_basic.get_stock_basic(pro=pro)
-    df = df[df['list_status']=='D']
-    df = df[['ts_code','name','list_date','delist_date']]
-    df = df.rename(columns={'ts_code':'code','list_date' : 'oDate','delist_date':'tDate'})
+    df = df[df['list_status'] == 'D']
+    df = df[['ts_code', 'name', 'list_date', 'delist_date']]
+    df = df.rename(columns={'ts_code': 'code', 'list_date': 'oDate', 'delist_date': 'tDate'})
     coll = client.stock_terminated
     client.drop_collection(coll)
     json_data = json.loads(df.reset_index().to_json(orient='records'))
@@ -205,8 +208,6 @@ def QA_SU_save_stock_info_tushare(client=DATABASE):
     json_data = json.loads(df.reset_index().to_json(orient='records'))
     coll.insert(json_data)
     print(" Save data to stock_info_tushare collection， OK")
-    
-    
 
 
 def QA_SU_save_trade_date_all(client=DATABASE):
@@ -303,12 +304,12 @@ def QA_save_lhb(client=DATABASE):
             pd = QA_fetch_get_lhb(start.isoformat())
             if pd is None:
                 continue
-            data = pd\
-                .assign(pchange=pd.pchange.apply(float))\
-                .assign(amount=pd.amount.apply(float))\
-                .assign(bratio=pd.bratio.apply(float))\
-                .assign(sratio=pd.sratio.apply(float))\
-                .assign(buy=pd.buy.apply(float))\
+            data = pd \
+                .assign(pchange=pd.pchange.apply(float)) \
+                .assign(amount=pd.amount.apply(float)) \
+                .assign(bratio=pd.bratio.apply(float)) \
+                .assign(sratio=pd.sratio.apply(float)) \
+                .assign(buy=pd.buy.apply(float)) \
                 .assign(sell=pd.sell.apply(float))
             # __coll.insert_many(QA_util_to_json_from_pandas(data))
             for i in range(0, len(data)):
@@ -350,9 +351,9 @@ def _saving_work(code, coll_stock_day, ui_log=None, err=[]):
 
             QA_util_log_info(
                 'UPDATE_STOCK_DAY \n Trying updating {} from {} to {}'
-                .format(code,
-                        start_date_new_format,
-                        end_date),
+                    .format(code,
+                            start_date_new_format,
+                            end_date),
                 ui_log
             )
             if start_date_new_format != end_date:
@@ -374,9 +375,9 @@ def _saving_work(code, coll_stock_day, ui_log=None, err=[]):
             start_date = '19900101'
             QA_util_log_info(
                 'UPDATE_STOCK_DAY \n Trying updating {} from {} to {}'
-                .format(code,
-                        start_date,
-                        end_date),
+                    .format(code,
+                            start_date,
+                            end_date),
                 ui_log
             )
             if start_date != end_date:
@@ -473,12 +474,6 @@ def QA_SU_save_finacial_inicator_data(client=DATABASE):
     import AY.Crius.Utils.logging_util as log
 
     __coll = client.finacial_indicator
-    __coll.create_index(
-        [("ts_code",
-          pymongo.ASCENDING),
-         ("ann_date",
-          pymongo.ASCENDING)]
-    )
 
     logger = log.get_logger('QA_fetch_stock_financial_indicators')
     data = None
@@ -515,12 +510,6 @@ def QA_SU_save_balance_sheet(client=DATABASE, start_ann_date=None):
     logger = log.get_logger('QA_fetch_stock_financial_indicators')
 
     __coll = client.balance_sheet
-    __coll.create_index(
-        [("ts_code",
-          pymongo.ASCENDING),
-         ("ann_date",
-          pymongo.ASCENDING)]
-    )
 
     if (not (start_ann_date is None)):
         if (not (isinstance(start_ann_date, str))):
@@ -544,8 +533,80 @@ def QA_SU_save_balance_sheet(client=DATABASE, start_ann_date=None):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
                 data = None
 
+
+def QA_SU_save_cash_flow(client=DATABASE, start_ann_date=None):
+    __coll = client.cash_flow
+
+    if (not (start_ann_date is None)):
+        if (not (isinstance(start_ann_date, str))):
+            start_ann_date = str(start_ann_date)
+        dates = trading_calendar_utils.get_trading_days_between(start_date=start_ann_date,
+                                                                end_date=trading_calendar_utils.get_today_as_str())
+        for d in dates:
+            data = QA_fetch_get_balance_sheet(ann_date=d)
+            if (data is not None):
+                __coll.insert_many(QA_util_to_json_from_pandas(data))
+                data = None
+    else:
+        try:
+            codes = QA_fetch_get_stock_list()
+        except Exception as e:
+            logger.error(e)
+            logger.error('error fetching stock list')
+        for code in codes:
+            data = QA_fetch_get_balance_sheet(ts_code=code)
+            if (data is not None and data.size > 0):
+                __coll.insert_many(QA_util_to_json_from_pandas(data))
+                data = None
+
+
+def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=None):
+    import AY.Crius.Utils.logging_util as log
+    logger = log.get_logger('QA_fetch_stock_financial_indicators')
+
+    if (table_type == data_mining_utils.CASH_FLOW_TYPE_NAME):
+        __coll = client.cash_flow
+    elif (table_type == data_mining_utils.BALANCE_SHEET_TYPE_NAME):
+        __coll = client.balance_sheet
+    elif (table_type == data_mining_utils.FINACIAL_INDICATOR_TYPE_NAME):
+        __coll = client.finacial_indicator
+
+    if (not (start_ann_date is None)):
+        if (not (isinstance(start_ann_date, str))):
+            start_ann_date = str(start_ann_date)
+        dates = trading_calendar_utils.get_trading_days_between(start_date=start_ann_date,
+                                                                end_date=trading_calendar_utils.get_today_as_str())
+        for d in dates:
+            if (table_type == data_mining_utils.CASH_FLOW_TYPE_NAME):
+                data = QA_fetch_get_stock_cashflow(ann_date=d)
+            elif (table_type == data_mining_utils.BALANCE_SHEET_TYPE_NAME):
+                data = QA_fetch_get_balance_sheet(ann_date=d)
+            elif (table_type == data_mining_utils.FINACIAL_INDICATOR_TYPE_NAME):
+                data = QA_fetch_get_stock_financial_indicators(ann_date=d)
+            if (data is not None and data.size > 0):
+                __coll.insert_many(QA_util_to_json_from_pandas(data))
+                data = None
+    else:
+        try:
+            codes = QA_fetch_get_stock_list()
+        except Exception as e:
+            logger.error(e)
+            logger.error('error fetching stock list')
+        for code in codes:
+            if (table_type == data_mining_utils.CASH_FLOW_TYPE_NAME):
+                data = QA_fetch_get_stock_cashflow(ts_code=code)
+            elif (table_type == data_mining_utils.BALANCE_SHEET_TYPE_NAME):
+                data = QA_fetch_get_balance_sheet(ts_code=code)
+            elif (table_type == data_mining_utils.FINACIAL_INDICATOR_TYPE_NAME):
+                data = QA_fetch_get_stock_financial_indicators(ts_code=code)
+            if (data is not None and data.size > 0):
+                __coll.insert_many(QA_util_to_json_from_pandas(data))
+                data = None
+
+
 if __name__ == '__main__':
     from pymongo import MongoClient
+
     client = MongoClient('localhost', 27017)
     db = client['quantaxis']
     QA_SU_save_stock_day(client=db)
