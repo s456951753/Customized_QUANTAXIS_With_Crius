@@ -268,8 +268,11 @@ def QA_fetch_get_stock_financial_indicators(ts_code=None, ann_date=None):
             return to_insert
     except Exception as e:
         logger.error(e)
-        logger.error("error processing data for code " + ts_code + "or date " + ann_date)
-
+        if (ts_code is None):
+            reason = "ann_date " + ann_date
+        else:
+            reason = "ts_code " + ts_code
+        logger.error("error processing data for " + reason)
 
 def QA_fetch_get_stock_cashflow(ts_code=None, ann_date=None):
     if (ts_code is None and ann_date is None):
@@ -290,7 +293,11 @@ def QA_fetch_get_stock_cashflow(ts_code=None, ann_date=None):
             return to_insert
     except Exception as e:
         logger.error(e)
-        logger.error("error processing data for code " + ts_code + "or date " + ann_date)
+        if (ts_code is None):
+            reason = "ann_date " + ann_date
+        else:
+            reason = "ts_code " + ts_code
+        logger.error("error processing data for " + reason)
 
 
 def QA_fetch_get_stock_daily_basic(trade_date):
@@ -332,8 +339,11 @@ def QA_fetch_get_balance_sheet(ts_code=None, ann_date=None):
             return to_insert
     except Exception as e:
         logger.error(e)
-        logger.error("error processing data for code " + ts_code + "or date " + ann_date)
-
+        if (ts_code is None):
+            reason = "ann_date " + ann_date
+        else:
+            reason = "ts_code " + ts_code
+        logger.error("error processing data for " + reason)
 
 # test
 

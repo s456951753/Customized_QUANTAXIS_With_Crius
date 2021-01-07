@@ -533,36 +533,9 @@ def QA_SU_save_balance_sheet(client=DATABASE, start_ann_date=None):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
                 data = None
 
-
-def QA_SU_save_cash_flow(client=DATABASE, start_ann_date=None):
-    __coll = client.cash_flow
-
-    if (not (start_ann_date is None)):
-        if (not (isinstance(start_ann_date, str))):
-            start_ann_date = str(start_ann_date)
-        dates = trading_calendar_utils.get_trading_days_between(start_date=start_ann_date,
-                                                                end_date=trading_calendar_utils.get_today_as_str())
-        for d in dates:
-            data = QA_fetch_get_balance_sheet(ann_date=d)
-            if (data is not None):
-                __coll.insert_many(QA_util_to_json_from_pandas(data))
-                data = None
-    else:
-        try:
-            codes = QA_fetch_get_stock_list()
-        except Exception as e:
-            logger.error(e)
-            logger.error('error fetching stock list')
-        for code in codes:
-            data = QA_fetch_get_balance_sheet(ts_code=code)
-            if (data is not None and data.size > 0):
-                __coll.insert_many(QA_util_to_json_from_pandas(data))
-                data = None
-
-
 def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=None):
     import AY.Crius.Utils.logging_util as log
-    logger = log.get_logger('QA_fetch_stock_financial_indicators')
+    logger = log.get_logger('QA_fetch_stock_report_type_table')
 
     if (table_type == data_mining_utils.CASH_FLOW_TYPE_NAME):
         __coll = client.cash_flow
