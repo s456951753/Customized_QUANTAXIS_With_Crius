@@ -1,4 +1,4 @@
-import Utils.configuration_file_service as config_service
+import AY.Crius.Utils.configuration_file_service as config_service
 import tushare as ts
 
 class tushare_interface:
