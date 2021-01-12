@@ -191,9 +191,12 @@ def QA_fetch_get_stock_tick(name, date):
     return ts.get_tick_data(name, date)
 
 
-def QA_fetch_get_stock_list():
+def QA_fetch_get_stock_list(type = 'list'):
     df = QA_fetch_stock_basic()
-    return list(df.ts_code)
+    if (type == 'list'):
+        return list(df.ts_code)
+    else:
+        return df
 
 
 def QA_fetch_get_stock_time_to_market():

@@ -8,14 +8,14 @@ import itertools
 from rqalpha.apis.api_base import history_bars, get_position
 from rqalpha.mod.rqalpha_mod_sys_accounts.api.api_stock import order_target_value, order_value
 
-import Utils.configuration_file_service as config_service
+import AY.Crius.Utils.configuration_file_service as config_service
 import tushare as ts
 
 token = config_service.getProperty(section_name=config_service.TOKEN_SECTION_NAME,
                                    property_name=config_service.TS_TOKEN_NAME)
 pro = ts.pro_api(token)
 
-df = pro.query('daily', ts_code='000001.SZ', start_date='20180701', end_date='20190718')
+#df = pro.query('daily', ts_code='000001.SZ', start_date='20180701', end_date='20190718')
 
 
 #---------------------------------------------------------------------------

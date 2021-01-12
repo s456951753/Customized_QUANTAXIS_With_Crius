@@ -114,19 +114,12 @@ def QA_save_stock_day_all(client=DATABASE):
 
 
 def QA_SU_save_stock_list(client=DATABASE):
-    data = QA_fetch_get_stock_list()
-    date = str(datetime.date.today())
+    data = QA_fetch_get_stock_list('df')
+    '''date = str(datetime.date.today())
     date_stamp = QA_util_date_stamp(date)
-    coll = client.stock_info_tushare
-    coll.insert(
-        {
-            'date': date,
-            'date_stamp': date_stamp,
-            'stock': {
-                'code': data
-            }
-        }
-    )
+    '''
+    coll = client.stock_list
+    coll.insert_many(QA_util_to_json_from_pandas(data))
 
 
 def QA_SU_save_stock_terminated(client=DATABASE):
@@ -575,7 +568,6 @@ def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=Non
             if (data is not None and data.size > 0):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
                 data = None
-
 
 if __name__ == '__main__':
     from pymongo import MongoClient

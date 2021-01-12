@@ -1,9 +1,4 @@
 import pandas as pd
-import AY.Crius.Utils.tushare_service as tushare_service
-from QUANTAXIS.QAUtil import DATABASE
-import AY.Crius.Utils.Technical_indicator as tech_indicator
-import AY.Crius.Utils.trading_calendar_utils as calendar_util
-import AY.Crius.Utils.numeric_utils as nu
 import AY.Crius.Utils.data_mining_utils as miner_util
 
 
@@ -13,17 +8,34 @@ def mine():
     financial_indicator_df = pd.DataFrame(miner_util.get_latest_finacial_indicator_table()[[
         "ts_code", "ann_date", "ocfps", "profit_dedt", "q_sales_yoy", "invturn_days"]])
     balance_sheet_df = pd.DataFrame(miner_util.get_latest_balance_sheet_table()[[
-        "ts_code", "f_ann_date", "update_flag", "total_assets", "cash_reser_cb", "depos_in_oth_bfi"]])
+        "ts_code", "f_ann_date", "update_flag", "total_assets", "cash_reser_cb", "depos_in_oth_bfi", "end_date"]])
     stock_list_df = pd.DataFrame(miner_util.get_stock_list()[["ts_code", "name"]])
-
+    cash_flow_df = pd.DataFrame(
+        miner_util.get_latest_cash_flow_table()[["ts_code", "f_ann_date", "end_bal_cash", "update_flag", "end_date"]])
     for code in stock_list_df["ts_code"]:
         df_balance_sheet_code = balance_sheet_df[balance_sheet_df.ts_code == code]
+        df_cash_flow_code = cash_flow_df[cash_flow_df.ts_code == code]
+        balance_sheet_max_end_date = df_balance_sheet_code[
+            df_balance_sheet_code['end_date'] == df_balance_sheet_code['end_date'].max()]
+        cash_flow_max_end_date = df_cash_flow_code[df_cash_flow_code['end_date'] == df_cash_flow_code['end_date'].max()]
         if len(df_balance_sheet_code.index) > 1:
-            balance_sheet_df.drop(
-                balance_sheet_df[(balance_sheet_df.ts_code == code) & (balance_sheet_df.update_flag == 0)].index)
-    df = daily_basic_df.merge(right=stock_list_df, on='ts_code').merge(right=financial_indicator_df,
-                                                                       on="ts_code").merge(right=balance_sheet_df,
-                                                                                           on="ts_code")
+            balance_sheet_df = balance_sheet_df.drop(
+                balance_sheet_df[(balance_sheet_df.ts_code == code) & (balance_sheet_df.update_flag == '0') & (
+                            balance_sheet_df.end_date < balance_sheet_max_end_date)].index)
+        if len(df_cash_flow_code.index) > 1:
+            cash_flow_df = cash_flow_df.drop(
+                cash_flow_df[(cash_flow_df.ts_code == code) & (cash_flow_df.update_flag == '0')& (
+                            cash_flow_df.end_date < cash_flow_max_end_date)].index)
+
+    balance_sheet_df = miner_util.rename_adding_suffix_with_exceptions(df=balance_sheet_df, suffix='_balance_sheet',
+                                                                       exception_column_name='ts_code')
+    cash_flow_df = miner_util.rename_adding_suffix_with_exceptions(df=cash_flow_df, suffix='_cash_flow',
+                                                                   exception_column_name='ts_code')
+    df = daily_basic_df.merge(right=stock_list_df,
+                              on='ts_code').merge(right=financial_indicator_df,
+                                                  on="ts_code").merge(right=balance_sheet_df,
+                                                                      on="ts_code").merge(
+        right=cash_flow_df, on="ts_code")
     # data cleaning
 
     # data analysis
