@@ -335,7 +335,7 @@ def QA_fetch_get_balance_sheet(ts_code=None, ann_date=None):
             to_insert = pro.balancesheet_vip(ts_code=ts_code)
             return to_insert
         elif (ts_code is None and not (ann_date is None)):
-            to_insert = pro.balancesheet_vip(ann_date=ann_date)
+            to_insert = pro.balancesheet_vip(f_ann_date=ann_date)
             return to_insert
         else:
             to_insert = pro.balancesheet_vip(ts_code=ts_code, ann_date=ann_date)

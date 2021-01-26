@@ -39,7 +39,10 @@ def mine():
     # data cleaning
 
     # data analysis
-    # df = df.assign(cash_to_market_cap=lambda x: (x.cash_reser_cb + x.depos_in_oth_bfi) / x.total_mv)
+    df = df.assign(cash_to_market_cap=lambda x: (x.end_bal_cash_cash_flow) / x.total_mv)
+    df = df.assign(price_to_op_cash_flow = lambda x:x.close / x.ocfps)
+    df = df.assign(gross_profit_over_assets = lambda x: x.profit_dedt/x.total_assets_balance_sheet)
+
     df.to_csv("test.csv", sep='\t', encoding='utf-8')
     return df
 
