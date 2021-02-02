@@ -485,14 +485,17 @@ def QA_SU_save_finacial_inicator_data(client=DATABASE):
 
 def QA_SU_save_daily_basic(client=DATABASE, date=None):
     __coll = client.daily_basic_tushare
+    '''
     __coll.create_index(
         [("ts_code",
           pymongo.ASCENDING),
          ("trade_date",
           pymongo.ASCENDING)]
-    )
+    )'''
     if (date == None):
-        date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+        #date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+        date = trading_calendar_utils.get_last_x_trading_day_from_mongodb()
+        date = str(date)
     data = QA_fetch_get_stock_daily_basic(date)
     if (data is not None):
         __coll.insert_many(QA_util_to_json_from_pandas(data))
