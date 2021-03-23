@@ -493,7 +493,7 @@ def QA_SU_save_daily_basic(client=DATABASE, date=None):
           pymongo.ASCENDING)]
     )'''
     if (date == None):
-        #date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
+        # date = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y%m%d')
         date = trading_calendar_utils.get_last_x_trading_day_from_mongodb()
         date = str(date)
     data = QA_fetch_get_stock_daily_basic(date)
@@ -529,6 +529,7 @@ def QA_SU_save_balance_sheet(client=DATABASE, start_ann_date=None):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
                 data = None
 
+
 def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=None):
     import AY.Crius.Utils.logging_util as log
     logger = log.get_logger('QA_fetch_stock_report_type_table')
@@ -537,7 +538,7 @@ def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=Non
         __coll = client.cash_flow
     elif (table_type == data_mining_utils.BALANCE_SHEET_TYPE_NAME):
         __coll = client.balance_sheet
-    elif (table_type == data_mining_utils.FINACIAL_INDICATOR_TYPE_NAME):
+    elif (table_type == data_mining_utils.FINANCIAL_INDICATOR_TYPE_NAME):
         __coll = client.finacial_indicator
 
     if (not (start_ann_date is None)):
@@ -545,12 +546,12 @@ def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=Non
             start_ann_date = str(start_ann_date)
         dates = trading_calendar_utils.get_trading_days_between(start_date=start_ann_date,
                                                                 end_date=trading_calendar_utils.get_today_as_str())
-        for d in dates:
+        for d in dates['date']:
             if (table_type == data_mining_utils.CASH_FLOW_TYPE_NAME):
                 data = QA_fetch_get_stock_cashflow(ann_date=d)
             elif (table_type == data_mining_utils.BALANCE_SHEET_TYPE_NAME):
                 data = QA_fetch_get_balance_sheet(ann_date=d)
-            elif (table_type == data_mining_utils.FINACIAL_INDICATOR_TYPE_NAME):
+            elif (table_type == data_mining_utils.FINANCIAL_INDICATOR_TYPE_NAME):
                 data = QA_fetch_get_stock_financial_indicators(ann_date=d)
             if (data is not None and data.size > 0):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
@@ -566,11 +567,12 @@ def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=Non
                 data = QA_fetch_get_stock_cashflow(ts_code=code)
             elif (table_type == data_mining_utils.BALANCE_SHEET_TYPE_NAME):
                 data = QA_fetch_get_balance_sheet(ts_code=code)
-            elif (table_type == data_mining_utils.FINACIAL_INDICATOR_TYPE_NAME):
+            elif (table_type == data_mining_utils.FINANCIAL_INDICATOR_TYPE_NAME):
                 data = QA_fetch_get_stock_financial_indicators(ts_code=code)
             if (data is not None and data.size > 0):
                 __coll.insert_many(QA_util_to_json_from_pandas(data))
                 data = None
+
 
 if __name__ == '__main__':
     from pymongo import MongoClient

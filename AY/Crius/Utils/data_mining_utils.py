@@ -4,7 +4,7 @@ from QUANTAXIS.QAUtil import DATABASE
 
 CASH_FLOW_TYPE_NAME = 'cash_flow'
 BALANCE_SHEET_TYPE_NAME = 'balance_sheet'
-FINACIAL_INDICATOR_TYPE_NAME = 'finacial_indicator'
+FINANCIAL_INDICATOR_TYPE_NAME = 'financial_indicator'
 
 
 def get_latest_daily_basic_table(mongoDB=DATABASE.daily_basic_tushare):

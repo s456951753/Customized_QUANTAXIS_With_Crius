@@ -191,7 +191,7 @@ def QA_fetch_get_stock_tick(name, date):
     return ts.get_tick_data(name, date)
 
 
-def QA_fetch_get_stock_list(type = 'list'):
+def QA_fetch_get_stock_list(type='list'):
     df = QA_fetch_stock_basic()
     if (type == 'list'):
         return list(df.ts_code)
@@ -261,13 +261,13 @@ def QA_fetch_get_stock_financial_indicators(ts_code=None, ann_date=None):
     logger = log.get_logger('QA_fetch_get_financial_indicators')
     try:
         if (not (ts_code is None) and ann_date is None):
-            to_insert = pro.fina_indicator(ts_code=ts_code)
+            to_insert = pro.fina_indicator_vip(ts_code=ts_code)
             return to_insert
         elif (ts_code is None and not (ann_date is None)):
-            to_insert = pro.fina_indicator(ann_date=ann_date)
+            to_insert = pro.fina_indicator_vip(ann_date=ann_date)
             return to_insert
         else:
-            to_insert = pro.fina_indicator(ts_code=ts_code, ann_date=ann_date)
+            to_insert = pro.fina_indicator_vip(ts_code=ts_code, ann_date=ann_date)
             return to_insert
     except Exception as e:
         logger.error(e)
@@ -276,6 +276,7 @@ def QA_fetch_get_stock_financial_indicators(ts_code=None, ann_date=None):
         else:
             reason = "ts_code " + ts_code
         logger.error("error processing data for " + reason)
+
 
 def QA_fetch_get_stock_cashflow(ts_code=None, ann_date=None):
     if (ts_code is None and ann_date is None):
@@ -335,7 +336,7 @@ def QA_fetch_get_balance_sheet(ts_code=None, ann_date=None):
             to_insert = pro.balancesheet_vip(ts_code=ts_code)
             return to_insert
         elif (ts_code is None and not (ann_date is None)):
-            to_insert = pro.balancesheet_vip(f_ann_date=ann_date)
+            to_insert = pro.balancesheet_vip(ann_date=ann_date)
             return to_insert
         else:
             to_insert = pro.balancesheet_vip(ts_code=ts_code, ann_date=ann_date)
@@ -347,6 +348,7 @@ def QA_fetch_get_balance_sheet(ts_code=None, ann_date=None):
         else:
             reason = "ts_code " + ts_code
         logger.error("error processing data for " + reason)
+
 
 # test
 
