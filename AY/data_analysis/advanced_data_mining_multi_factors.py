@@ -59,7 +59,8 @@ def mine():
 
     # clean data - drop any code that has 0 total_mv, ocfps or total_assets
     df=df.drop(df[df.total_mv * df.ocfps * df.total_assets_balance_sheet==0].index)
-
+    # clean data -any code that has NA pe
+    df = df.drop(df[df.pe.isna() == True].index)
     # data analysis column
 
     df = df.assign(cash_to_market_cap=lambda x: (x.end_bal_cash_cash_flow) / x.total_mv)
