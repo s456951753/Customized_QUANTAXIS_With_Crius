@@ -1,6 +1,9 @@
+from typing import Dict
+
 import AY.Crius.Utils.trading_calendar_utils as calendar_util
 import pandas as pd
 from QUANTAXIS.QAUtil import DATABASE
+import AY.Crius.Utils.numeric_utils as numeric_utils
 
 CASH_FLOW_TYPE_NAME = 'cash_flow'
 BALANCE_SHEET_TYPE_NAME = 'balance_sheet'
@@ -118,3 +121,25 @@ def add_necessary_data(start_date=None, mongoDB=DATABASE, auto_detect=False):
     if (start_date is None):
         st.QA_SU_save_trade_date_all()
         st.QA_SU_save_stock_list('tushare')
+
+
+def rank_dataframe_columns_adding_index(df: pd.DataFrame, ranking_setup: Dict, base_name='ts_code'):
+    """
+
+    Args:
+        df: the dataframe to be sorted
+        ranking_setup: a setup for ranking in the form of Dict[str, bool]
+        base_name: the column used to merge the dataframe back. Default as ts_code
+    Returns:
+        the sorted df with index added
+    """
+
+    for column in ranking_setup.keys():
+        ranked_column_name = str(column) + "_rank"
+        to_rank = df[[base_name, column]]
+        ranked = numeric_utils.sort_dataFrame_by_column_add_index(df=to_rank, column=column, asc=ranking_setup[column])
+        ranked = ranked.assign(ranked_column_name=lambda x: x.index+1)
+        ranked = ranked.rename(columns={base_name: base_name, column: column, "ranked_column_name": ranked_column_name})
+        ranked = ranked.drop(columns=column)
+        df = df.merge(right=ranked, on=base_name)
+    return df

@@ -90,11 +90,11 @@ def get_quarter_start_end_date(quarter: int):
 
 def sort_dataFrame_by_column_add_index(df: DataFrame, column, asc=True):
     '''
-
+    Get an updated frame sorted by column specified, and add new index accordingly
     :param df:
     :param column:
     :param asc:
-    :return:
+    :return: dataframe
     '''
     if column is None:
         raise ValueError("Column must be specified")

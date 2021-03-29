@@ -1,6 +1,14 @@
 import pandas as pd
 import AY.Crius.Utils.data_mining_utils as miner_util
 
+ranking_setup = {"pb": True,
+                 "ps": True,
+                 "cash_to_market_cap": False,
+                 "pe": True,
+                 "price_to_op_cash_flow": True,
+                 "gross_profit_over_assets": False,
+                 "q_sales_yoy": False}
+
 
 def mine():
     daily_basic_df = pd.DataFrame(miner_util.get_latest_daily_basic_table()[[
@@ -16,12 +24,12 @@ def mine():
     for code in stock_list_df["ts_code"]:
         # clean data for balance sheet
         df_balance_sheet_code = balance_sheet_df[balance_sheet_df.ts_code == code]
-        if (len(df_balance_sheet_code.index)<=0):
+        if (len(df_balance_sheet_code.index) <= 0):
             # skip cause there's no data for that code
             continue
-        elif(len(df_balance_sheet_code.index)>1):
+        elif (len(df_balance_sheet_code.index) > 1):
             # we got more than 1 record for the same f_ann_date. filter by end date now
-            d=df_balance_sheet_code['end_date'].max()
+            d = df_balance_sheet_code['end_date'].max()
             if len(df_balance_sheet_code.index) > 1:
                 balance_sheet_df = balance_sheet_df.drop(
                     balance_sheet_df[(balance_sheet_df.ts_code == code) & (balance_sheet_df.end_date < d)].index)
@@ -33,9 +41,9 @@ def mine():
 
         # clean data for cash flow
         df_cash_flow_code = cash_flow_df[cash_flow_df.ts_code == code]
-        if (len(df_cash_flow_code.index)<=0):
+        if (len(df_cash_flow_code.index) <= 0):
             continue
-        elif(len(df_cash_flow_code.index)>1):
+        elif (len(df_cash_flow_code.index) > 1):
             d = df_cash_flow_code['end_date'].max()
             # clear ones that not covering the correct period
             if len(df_cash_flow_code.index) > 1:
@@ -45,7 +53,6 @@ def mine():
             if len(cash_flow_df[cash_flow_df.ts_code == code]) > 1:
                 cash_flow_df = cash_flow_df.drop(
                     cash_flow_df[(cash_flow_df.ts_code == code) & (cash_flow_df.update_flag == '0')].index)
-
 
     balance_sheet_df = miner_util.rename_adding_suffix_with_exceptions(df=balance_sheet_df, suffix='_balance_sheet',
                                                                        exception_column_name='ts_code')
@@ -58,14 +65,18 @@ def mine():
         right=cash_flow_df, on="ts_code")
 
     # clean data - drop any code that has 0 total_mv, ocfps or total_assets
-    df=df.drop(df[df.total_mv * df.ocfps * df.total_assets_balance_sheet==0].index)
+    df = df.drop(df[df.total_mv * df.ocfps * df.total_assets_balance_sheet == 0].index)
     # clean data -any code that has NA pe
     df = df.drop(df[df.pe.isna() == True].index)
     # data analysis column
 
     df = df.assign(cash_to_market_cap=lambda x: (x.end_bal_cash_cash_flow) / x.total_mv)
-    df = df.assign(price_to_op_cash_flow = lambda x:x.close / x.ocfps)
-    df = df.assign(gross_profit_over_assets = lambda x: x.profit_dedt/x.total_assets_balance_sheet)
+    df = df.assign(price_to_op_cash_flow=lambda x: x.close / x.ocfps)
+    df = df.assign(gross_profit_over_assets=lambda x: x.profit_dedt / x.total_assets_balance_sheet)
+
+    # ranking
+
+    df = miner_util.rank_dataframe_columns_adding_index(df=df,ranking_setup=ranking_setup)
 
     df.to_csv("test.csv", sep='\t', encoding='utf-8')
     return df
@@ -74,7 +85,6 @@ def mine():
 def send_Message():
     from AY.Crius.Utils import email_func
     email_func.send_mail(mine())
-
 
 
 send_Message()
