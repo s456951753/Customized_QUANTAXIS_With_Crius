@@ -66,7 +66,7 @@ def mine():
 
     # clean data - drop any code that has 0 total_mv, ocfps or total_assets. Drop ocfps < 0
     df = df.drop(df[df.total_mv * df.ocfps * df.total_assets_balance_sheet == 0].index)
-    df = df.drop(df[df.ocfps<0].index)
+    df = df.drop(df[df.ocfps < 0].index)
     # clean data -any code that has NA pe
     df = df.drop(df[df.pe.isna() == True].index)
     # data analysis column
@@ -77,21 +77,24 @@ def mine():
 
     # ranking
 
-    df = miner_util.rank_dataframe_columns_adding_index(df=df,ranking_setup=ranking_setup)
+    df = miner_util.rank_dataframe_columns_adding_index(df=df, ranking_setup=ranking_setup)
 
     # Post ranking analysis columns
-    df = df.assign(deep_value=lambda x: (x.pb_rank+x.ps_rank+x.cash_to_market_cap_rank) / 3)
-    df = df.assign(current_value=lambda x: (x.pe_rank+x.price_to_op_cash_flow_rank) / 2)
-    df = df.assign(fundamental=lambda x: (x.gross_profit_over_assets_rank+x.q_sales_yoy_rank) / 2)
-    df = df.assign(Expecte_return = lambda x: (x.deep_value+x.current_value+x.fundamental)/3)
+    df = df.assign(deep_value=lambda x: (x.pb_rank + x.ps_rank + x.cash_to_market_cap_rank) / 3)
+    df = df.assign(current_value=lambda x: (x.pe_rank + x.price_to_op_cash_flow_rank) / 2)
+    df = df.assign(fundamental=lambda x: (x.gross_profit_over_assets_rank + x.q_sales_yoy_rank) / 2)
+    df = df.assign(Expected_return=lambda x: (x.deep_value + x.current_value + x.fundamental) / 3)
+
+    df = df.sort_values(by='Expected_return', ascending=True)
 
     df.to_csv("test.csv", sep='\t', encoding='utf-8')
     return df
 
 
 def send_Message():
+    mine()
     from AY.Crius.Utils import email_func
-    email_func.send_mail(mine())
+    email_func.send_mail()
 
 
 send_Message()
