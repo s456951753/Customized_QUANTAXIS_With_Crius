@@ -4,6 +4,7 @@ import AY.Crius.Utils.trading_calendar_utils as calendar_util
 import pandas as pd
 from QUANTAXIS.QAUtil import DATABASE
 import AY.Crius.Utils.numeric_utils as numeric_utils
+import AY.Crius.Utils.trading_calendar_utils as trading_calendar_utils
 
 CASH_FLOW_TYPE_NAME = 'cash_flow'
 BALANCE_SHEET_TYPE_NAME = 'balance_sheet'
@@ -143,3 +144,19 @@ def rank_dataframe_columns_adding_index(df: pd.DataFrame, ranking_setup: Dict, b
         ranked = ranked.drop(columns=column)
         df = df.merge(right=ranked, on=base_name)
     return df
+
+def get_daily_data_to_db():
+    '''
+    Runs every day to pull data from tushare
+    Not suitable to be used as bulky data pulling
+    Returns:
+
+    '''
+    import QUANTAXIS.QASU.save_tushare as st
+
+    today = int(trading_calendar_utils.get_today_as_str())
+    st.QA_SU_save_report_type_table(table_type=FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=today)
+    st.QA_SU_save_report_type_table(table_type=CASH_FLOW_TYPE_NAME, start_ann_date=today)
+    st.QA_SU_save_report_type_table(table_type=BALANCE_SHEET_TYPE_NAME, start_ann_date=today)
+
+    st.QA_SU_save_daily_basic()
