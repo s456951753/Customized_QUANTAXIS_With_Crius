@@ -28,7 +28,7 @@ def get_trading_days_between(start_date=None, end_date=None) -> pd.DataFrame:
         return calendar[calendar['date'] >= int(start_date)]
 
     #    otherwise give all dates between the two given date
-    return calendar[(calendar['date'] >= int(start_date)) & calendar['date'] <= int(end_date)]
+    return calendar[(int(start_date) <= calendar['date']) & (calendar['date'] <= int(end_date))]
 
 
 def get_last_x_trading_day_from_mongodb(x_day_ago=1):

@@ -8,8 +8,8 @@ import logging
 
 from sqlalchemy.exc import IntegrityError
 
-import Utils.configuration_file_service as config_service
-import Utils.DB_utils as dbUtil
+import AY.Crius.Utils.configuration_file_service as config_service
+import AY.Crius.Utils.DB_utils as dbUtil
 
 import pandas as pd
 import tushare as ts

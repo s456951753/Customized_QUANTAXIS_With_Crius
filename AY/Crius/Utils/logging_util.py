@@ -50,7 +50,7 @@ def get_logger(base_name, file_name=None):
     # create console handler & file handler
     ch = logging.StreamHandler()
     ch.setStream(sys.stdout)
-    fi = logging.FileHandler(filename="E:\PycharmProjects\Crius\\" + file_name + ".log")
+    fi = logging.FileHandler(filename="..\logs\\" + file_name + ".log")
 
     # create formatter
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
