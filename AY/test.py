@@ -29,3 +29,4 @@ print(df)
 #
 #st.QA_SU_save_balance_sheet()
 #st.QA_SU_save_report_type_table(table_type=data_mining_utils.CASH_FLOW_TYPE_NAME)
+
