@@ -544,8 +544,9 @@ def QA_SU_save_report_type_table(table_type, client=DATABASE, start_ann_date=Non
     if (not (start_ann_date is None)):
         if (not (isinstance(start_ann_date, str))):
             start_ann_date = str(start_ann_date)
-        dates = trading_calendar_utils.get_trading_days_between(start_date=start_ann_date,
-                                                                end_date=trading_calendar_utils.get_today_as_str())
+        #always only save up to yesterday
+        dates = trading_calendar_utils.get_days_between(start_date=start_ann_date,
+                                                        end_date=trading_calendar_utils.get_yesterday_as_str())
         for d in dates['date']:
             if (table_type == data_mining_utils.CASH_FLOW_TYPE_NAME):
                 data = QA_fetch_get_stock_cashflow(ann_date=d)

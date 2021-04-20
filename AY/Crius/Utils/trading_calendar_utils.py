@@ -2,6 +2,8 @@ import pandas as pd
 from QUANTAXIS.QAUtil.QASetting import DATABASE
 import datetime
 
+START_DATE_OF_SHSX_STOCK = '19930101'
+
 
 def get_trading_days_between(start_date=None, end_date=None) -> pd.DataFrame:
     '''
@@ -55,3 +57,45 @@ def get_trading_calendar(engine=DATABASE) -> pd.DataFrame:
 
 def get_today_as_str():
     return datetime.date.today().strftime(format="%Y%m%d")
+
+
+def get_yesterday_as_str():
+    yesterday = datetime.datetime.now() - datetime.timedelta(1)
+    return datetime.datetime.strftime(yesterday, format="%Y%m%d")
+
+
+def get_days_between(start_date=None, end_date=None):
+    '''
+    logic:
+        if start_date and end_date are not provided, return yesterday
+        if start_date and end_date equals, return the day
+        if start_date not provided, return from 19930101 to end_date, inclusive of end_date
+        if end_date not provided, return from start_date to today, inclusive of both sides
+    Args:
+        start_date:
+        end_date:
+
+    Returns:
+        single-column dataframe containing the days, with column name "date"
+    '''
+    __list = []
+
+    if (start_date is None and end_date is None):
+        df= pd.DataFrame(__list.append(get_yesterday_as_str()), columns=['date'])
+        return df
+    if start_date is None:
+        start_date = START_DATE_OF_SHSX_STOCK
+    if end_date is None:
+        end_date = get_today_as_str()
+    if start_date == end_date:
+        df = pd.DataFrame(__list.append(str(start_date)), columns=['date'])
+        return df
+    start_as_datetime = datetime.datetime.strptime(start_date, '%Y%m%d')
+    end_as_datetime = datetime.datetime.strptime(end_date, '%Y%m%d')
+    span = end_as_datetime - start_as_datetime
+
+    for n in range(span.days + 1):
+        day = start_as_datetime + datetime.timedelta(days=n)
+        __list.append(day.strftime(format="%Y%m%d"))
+
+    return pd.DataFrame(__list, columns=['date'])

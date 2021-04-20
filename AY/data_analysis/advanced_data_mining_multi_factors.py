@@ -1,5 +1,6 @@
 import pandas as pd
 import AY.Crius.Utils.data_mining_utils as miner_util
+import AY.Crius.Utils.trading_calendar_utils as trading_calendar_utils
 
 ranking_setup = {"pb": True,
                  "ps": True,
@@ -87,12 +88,14 @@ def mine():
 
     df = df.sort_values(by='Expected_return', ascending=True)
 
-    df.to_csv("test.csv", sep='\t', encoding='utf-8')
     return df
 
 
 def send_Message():
-    mine()
+    df = mine()
+
+    df.to_csv(trading_calendar_utils.get_today_as_str()+".csv", sep='\t', encoding='utf-8')
+
     from AY.Crius.Utils import email_func
     email_func.send_mail()
 
