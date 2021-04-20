@@ -154,9 +154,9 @@ def get_daily_data_to_db():
     '''
     import QUANTAXIS.QASU.save_tushare as st
 
-    today = int(trading_calendar_utils.get_today_as_str())
-    st.QA_SU_save_report_type_table(table_type=FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=today)
-    st.QA_SU_save_report_type_table(table_type=CASH_FLOW_TYPE_NAME, start_ann_date=today)
-    st.QA_SU_save_report_type_table(table_type=BALANCE_SHEET_TYPE_NAME, start_ann_date=today)
+    yesterday = int(trading_calendar_utils.get_yesterday_as_str())
+    st.QA_SU_save_report_type_table(table_type=FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=yesterday)
+    st.QA_SU_save_report_type_table(table_type=CASH_FLOW_TYPE_NAME, start_ann_date=yesterday)
+    st.QA_SU_save_report_type_table(table_type=BALANCE_SHEET_TYPE_NAME, start_ann_date=yesterday)
 
     st.QA_SU_save_daily_basic()

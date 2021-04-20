@@ -9,8 +9,20 @@ import pandas as pd
 
 #st.QA_SU_save_trade_date_all()
 #QA_SU_save_stock_list('tushare')
+'''
+print(trading_calendar_utils.get_yesterday_as_str())
+print(trading_calendar_utils.get_days_between())
+print(trading_calendar_utils.get_days_between(start_date='20200105'))
+print(trading_calendar_utils.get_days_between(end_date='19930105'))
+print(trading_calendar_utils.get_days_between(start_date='20200105',end_date='20200105'))
+'''
+print(trading_calendar_utils.get_days_between(start_date='20210101'))
 
-data_mining_utils.get_daily_data_to_db()
+#st.QA_SU_save_report_type_table(table_type=data_mining_utils.FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=20210417)
+##st.QA_SU_save_report_type_table(table_type=data_mining_utils.CASH_FLOW_TYPE_NAME, start_ann_date=20210417)
+#st.QA_SU_save_report_type_table(table_type=data_mining_utils.BALANCE_SHEET_TYPE_NAME, start_ann_date=20210417)
+#st.QA_SU_save_daily_basic()
+#data_mining_utils.get_daily_data_to_db()
 '''
 df = pd.DataFrame({
      'col1' : ['A', 'B', 'C', 'D','E','F'],
