@@ -10,6 +10,10 @@ CASH_FLOW_TYPE_NAME = 'cash_flow'
 BALANCE_SHEET_TYPE_NAME = 'balance_sheet'
 FINANCIAL_INDICATOR_TYPE_NAME = 'financial_indicator'
 
+TABLE_LATEST_DATE_COLUMN_MAPPING = {CASH_FLOW_TYPE_NAME: 'f_ann_date',
+                                    BALANCE_SHEET_TYPE_NAME: 'f_ann_date',
+                                    FINANCIAL_INDICATOR_TYPE_NAME: 'ann_date'}
+
 
 def get_latest_daily_basic_table(mongoDB=DATABASE.daily_basic_tushare):
     trade_date = calendar_util.get_last_x_trading_day_from_mongodb(1)
@@ -139,11 +143,12 @@ def rank_dataframe_columns_adding_index(df: pd.DataFrame, ranking_setup: Dict, b
         ranked_column_name = str(column) + "_rank"
         to_rank = df[[base_name, column]]
         ranked = numeric_utils.sort_dataFrame_by_column_add_index(df=to_rank, column=column, asc=ranking_setup[column])
-        ranked = ranked.assign(ranked_column_name=lambda x: x.index+1)
+        ranked = ranked.assign(ranked_column_name=lambda x: x.index + 1)
         ranked = ranked.rename(columns={base_name: base_name, column: column, "ranked_column_name": ranked_column_name})
         ranked = ranked.drop(columns=column)
         df = df.merge(right=ranked, on=base_name)
     return df
+
 
 def get_daily_data_to_db():
     '''
@@ -154,9 +159,38 @@ def get_daily_data_to_db():
     '''
     import QUANTAXIS.QASU.save_tushare as st
 
-    yesterday = int(trading_calendar_utils.get_yesterday_as_str())
-    st.QA_SU_save_report_type_table(table_type=FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=yesterday)
-    st.QA_SU_save_report_type_table(table_type=CASH_FLOW_TYPE_NAME, start_ann_date=yesterday)
-    st.QA_SU_save_report_type_table(table_type=BALANCE_SHEET_TYPE_NAME, start_ann_date=yesterday)
+    table_date_mapping = get_latest_local_stored_date()
+    st.QA_SU_save_report_type_table(table_type=FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=int(table_date_mapping[FINANCIAL_INDICATOR_TYPE_NAME])+1)
+    st.QA_SU_save_report_type_table(table_type=CASH_FLOW_TYPE_NAME, start_ann_date=int(table_date_mapping[CASH_FLOW_TYPE_NAME])+1)
+    st.QA_SU_save_report_type_table(table_type=BALANCE_SHEET_TYPE_NAME, start_ann_date=int(table_date_mapping[BALANCE_SHEET_TYPE_NAME])+1)
 
     st.QA_SU_save_daily_basic()
+
+
+def get_latest_local_stored_date(table_name=None, client=DATABASE):
+    tables = []
+    latest_dates = {}
+    if (table_name is None):
+        tables = {FINANCIAL_INDICATOR_TYPE_NAME, CASH_FLOW_TYPE_NAME, BALANCE_SHEET_TYPE_NAME}
+    else:
+        tables[0] = table_name
+    for ta in tables:
+        if (ta == CASH_FLOW_TYPE_NAME):
+            __coll = client.cash_flow
+        elif (ta == BALANCE_SHEET_TYPE_NAME):
+            __coll = client.balance_sheet
+        elif (ta == FINANCIAL_INDICATOR_TYPE_NAME):
+            __coll = client.finacial_indicator
+        pipeline = [
+            {
+                '$sort': {
+                    TABLE_LATEST_DATE_COLUMN_MAPPING[ta]: -1
+                }
+            }, {
+                '$limit': 1
+            }
+        ]
+        for a in __coll.aggregate(pipeline):
+            latest_dates[ta] = a[TABLE_LATEST_DATE_COLUMN_MAPPING[ta]]
+
+    return latest_dates

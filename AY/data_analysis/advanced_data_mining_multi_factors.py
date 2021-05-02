@@ -38,6 +38,12 @@ def mine():
             if len(balance_sheet_df[balance_sheet_df.ts_code == code]) > 1:
                 balance_sheet_df = balance_sheet_df.drop(
                     balance_sheet_df[(balance_sheet_df.ts_code == code) & (balance_sheet_df.update_flag == '0')].index)
+            # after all filtering we still got more than one record. Drop the company
+            if len(balance_sheet_df[balance_sheet_df.ts_code == code]) > 1:
+                print(code + " this code has got duplicated balancesheet")
+                balance_sheet_df = balance_sheet_df.drop(
+                    balance_sheet_df[(balance_sheet_df.ts_code == code)].index)
+
         # otherwise we are happy cause we got 1 record
 
         # clean data for cash flow
@@ -54,6 +60,11 @@ def mine():
             if len(cash_flow_df[cash_flow_df.ts_code == code]) > 1:
                 cash_flow_df = cash_flow_df.drop(
                     cash_flow_df[(cash_flow_df.ts_code == code) & (cash_flow_df.update_flag == '0')].index)
+            # after all filtering we still got more than one record. Drop the company
+            if len(cash_flow_df[cash_flow_df.ts_code == code]) > 1:
+                print(code + " this code has got duplicated cashflow")
+                cash_flow_df = cash_flow_df.drop(
+                    cash_flow_df[(cash_flow_df.ts_code == code)].index)
 
     balance_sheet_df = miner_util.rename_adding_suffix_with_exceptions(df=balance_sheet_df, suffix='_balance_sheet',
                                                                        exception_column_name='ts_code')
@@ -94,10 +105,10 @@ def mine():
 def send_Message():
     df = mine()
 
-    df.to_csv(trading_calendar_utils.get_today_as_str()+".csv", sep='\t', encoding='utf-8')
+    df.to_csv(trading_calendar_utils.get_today_as_str() + ".csv", sep='\t', encoding='utf-8')
 
     from AY.Crius.Utils import email_func
-    email_func.send_mail()
+    email_func.send_mail(message='Report for ' + trading_calendar_utils.get_today_as_str())
 
 
 send_Message()
