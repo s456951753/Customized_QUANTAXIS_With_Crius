@@ -159,6 +159,8 @@ def get_daily_data_to_db():
     '''
     import QUANTAXIS.QASU.save_tushare as st
 
+    st.QA_SU_save_stock_list()
+
     table_date_mapping = get_latest_local_stored_date()
     st.QA_SU_save_report_type_table(table_type=FINANCIAL_INDICATOR_TYPE_NAME, start_ann_date=int(table_date_mapping[FINANCIAL_INDICATOR_TYPE_NAME])+1)
     st.QA_SU_save_report_type_table(table_type=CASH_FLOW_TYPE_NAME, start_ann_date=int(table_date_mapping[CASH_FLOW_TYPE_NAME])+1)

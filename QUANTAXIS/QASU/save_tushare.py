@@ -119,6 +119,7 @@ def QA_SU_save_stock_list(client=DATABASE):
     date_stamp = QA_util_date_stamp(date)
     '''
     coll = client.stock_list
+    coll.drop()
     coll.insert_many(QA_util_to_json_from_pandas(data))
 
 
